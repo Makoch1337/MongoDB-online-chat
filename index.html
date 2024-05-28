@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #messages {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+
+        #messages li {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        #input,
+        #button {
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <ul id="messages"></ul>
+    <input id="input" autocomplete="off">
+    <button id="button">Send</button>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        socket.on('init', (messages) => {
+            const ul = document.getElementById('messages');
+            messages.forEach((message) => {
+                const li = document.createElement('li');
+                li.textContent = message.text;
+                ul.appendChild(li);
+            });
+        });
+
+        document.getElementById('button').addEventListener('click', () => {
+            const input = document.getElementById('input');
+            const text = input.value.trim();
+            if (text !== '') {
+                socket.emit('message', { text });
+                input.value = '';
+            }
+        });
+
+        socket.on('message', (message) => {
+            const ul = document.getElementById('messages');
+            const li = document.createElement('li');
+            li.textContent = message.text;
+            ul.appendChild(li);
+        });
+    </script>
+</body>
+
+</html>
